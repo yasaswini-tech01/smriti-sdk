@@ -1,9 +1,11 @@
 [package]
-name = "smriti-sdk"
+name = "smriti-new"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+anyhow = "1.0.102"
+jsonwebtoken = "10.3.0"
 mongodb = "3.5.1"
 reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
 serde = { version = "1", features = ["derive"] }
