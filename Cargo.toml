@@ -1,7 +1,13 @@
 [package]
 name = "smriti-sdk"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
+description = "A Rust SDK for interacting with Smriti services"
+authors = ["Your Name <your.email@example.com>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/yourusername/smriti-sdk"
+keywords = ["sdk", "api", "smriti"]
+categories = ["api-bindings"]
 
 [dependencies]
 mongodb = "3.5.1"
