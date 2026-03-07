@@ -111,11 +111,11 @@ pub struct GetRecordRequest {
 #[derive(Debug, Deserialize)]
 pub struct PayloadResponse {
     #[serde(rename = "data")]
-    pub message: DeleteMessage,
+    pub message: Message,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct DeleteMessage {
+pub struct Message {
     pub message: String,
 }
 
@@ -147,11 +147,28 @@ pub struct HybridQueryVectorRecordRequest {
 }
 
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct HybridQueryVectorRecordResponse{
+    pub data: Vec<SearchResult>,
+}
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SearchResult {
+    pub id: String,
+    pub score: f32,
+    pub payload: Option<Value>,
+}
 #[derive(Serialize,Deserialize, Debug)]
 pub struct VectorFreeSearch {
     #[serde(rename = "collectionName")]
     pub collection_name: String,
     pub query: serde_json::Value,
 }
+#[derive(Debug, Serialize, Deserialize)]
+pub struct VectorFreeSearchResponse {
+    pub data: Vec<SearchResult>,
+}
+
+
+
 
 
