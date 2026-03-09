@@ -1,51 +1,83 @@
-use crate::model::*;
 use crate::{SmritiClient, SmritiError};
+use crate::model::*;
+use serde_json::Value;
+
 impl SmritiClient {
+
     pub async fn create_db_collection(
         &self,
         collection_name: &str,
     ) -> Result<CreateDbCollectionResponse, SmritiError> {
+
         let url = format!("{}/db/create-collection", self.base_url);
+
         let body = CreateDbCollectionRequest {
             collection_name: collection_name.to_string(),
         };
-        let response = self.http_client.post(url).json(&body).send().await?;
 
-        if !response.status().is_success() {
-            return Err(SmritiError::ServerError(
-                response.text().await.unwrap_or_default(),
-            ));
+        let response = self
+            .http_client
+            .post(url)
+            .json(&body)
+            .send()
+            .await
+            .map_err(SmritiError::RequestError)?;
+
+        let status = response.status();
+        let body_text = response.text().await.map_err(SmritiError::RequestError)?;
+
+        if !status.is_success() {
+            return Err(SmritiError::ServerError(body_text));
         }
 
-        let result = response.json::<CreateDbCollectionResponse>().await?;
+        let result: CreateDbCollectionResponse =
+            serde_json::from_str(&body_text).map_err(SmritiError::SerializationError)?;
 
         Ok(result)
     }
+
+
     pub async fn create_record(
         &self,
         collection_name: &str,
-        payload: serde_json::Value,
+        payload: Value,
     ) -> Result<CreateRecordResponse, SmritiError> {
+
         let url = format!("{}/db/create-record", self.base_url);
 
         let body = CreateRecordRequest {
             collection_name: collection_name.to_string(),
             payload,
         };
-        let response = self.http_client.post(url).json(&body).send().await?;
-        if !response.status().is_success() {
-            return Err(SmritiError::ServerError(
-                response.text().await.unwrap_or_default(),
-            ));
+
+        let response = self
+            .http_client
+            .post(url)
+            .json(&body)
+            .send()
+            .await
+            .map_err(SmritiError::RequestError)?;
+
+        let status = response.status();
+        let body_text = response.text().await.map_err(SmritiError::RequestError)?;
+
+        if !status.is_success() {
+            return Err(SmritiError::ServerError(body_text));
         }
-        let result = response.json::<CreateRecordResponse>().await?;
+
+        let result: CreateRecordResponse =
+            serde_json::from_str(&body_text).map_err(SmritiError::SerializationError)?;
+
         Ok(result)
     }
+
+
     pub async fn get_record(
         &self,
         collection_name: &str,
         record_id: &str,
     ) -> Result<GetRecordResponse, SmritiError> {
+
         let url = format!("{}/db/get-record", self.base_url);
 
         let body = GetRecordRequest {
@@ -53,35 +85,56 @@ impl SmritiClient {
             record_id: record_id.to_string(),
         };
 
-        let response = self.http_client.post(url).json(&body).send().await?;
+        let response = self
+            .http_client
+            .post(url)
+            .json(&body)
+            .send()
+            .await
+            .map_err(SmritiError::RequestError)?;
 
-        if !response.status().is_success() {
-            return Err(SmritiError::ServerError(
-                response.text().await.unwrap_or_default(),
-            ));
+        let status = response.status();
+        let body_text = response.text().await.map_err(SmritiError::RequestError)?;
+
+        if !status.is_success() {
+            return Err(SmritiError::ServerError(body_text));
         }
 
-        let result = response.json::<GetRecordResponse>().await?;
+        let result: GetRecordResponse =
+            serde_json::from_str(&body_text).map_err(SmritiError::SerializationError)?;
 
         Ok(result)
     }
+
+
     pub async fn llm_response_feedback_record(
         &self,
-        payload: serde_json::Value,
+        payload: Value,
     ) -> Result<LlmResponseFeedbackResponse, SmritiError> {
+
         let url = format!("{}/db/llm-response-feedback-record", self.base_url);
 
-        let body = LlmResponseFeedbackRequest { payload };
+        let body = LlmResponseFeedbackRequest {
+            payload,
+        };
 
-        let response = self.http_client.post(url).json(&body).send().await?;
+        let response = self
+            .http_client
+            .post(url)
+            .json(&body)
+            .send()
+            .await
+            .map_err(SmritiError::RequestError)?;
 
-        if !response.status().is_success() {
-            return Err(SmritiError::ServerError(
-                response.text().await.unwrap_or_default(),
-            ));
+        let status = response.status();
+        let body_text = response.text().await.map_err(SmritiError::RequestError)?;
+
+        if !status.is_success() {
+            return Err(SmritiError::ServerError(body_text));
         }
 
-        let result = response.json::<LlmResponseFeedbackResponse>().await?;
+        let result: LlmResponseFeedbackResponse =
+            serde_json::from_str(&body_text).map_err(SmritiError::SerializationError)?;
 
         Ok(result)
     }
