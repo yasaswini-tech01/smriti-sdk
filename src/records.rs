@@ -114,7 +114,13 @@ impl SmritiClient {
     let status = response.status();
     let body = response.text().await?;
     if !status.is_success() {
-        return Err(SmritiError::ServerError(body));
+        let error_message: serde_json::Value = serde_json::from_str(&body)?;
+            return Err(SmritiError::ServerError(
+                error_message["message"]
+                    .as_str()
+                    .unwrap_or("Unknown server error")
+                    .to_string(),
+        ));
     }
     let result: CreateCollectionResponse = serde_json::from_str(&body)?;
     Ok(result)
