@@ -11,6 +11,7 @@ impl SmritiClient {
     ) -> Result<CreateCollectionResponse, SmritiError> {
 
         let url = format!("{}/vector/create-collection", self.base_url);
+
         let body = CreateVectorCollectionRequest {
             collection_name: collection_name.to_string(),
             vector_size,
@@ -21,15 +22,22 @@ impl SmritiClient {
             .post(url)
             .json(&body)
             .send()
-            .await?;
-        if !response.status().is_success() {
-            return Err(SmritiError::ServerError(
-                response.text().await.unwrap_or_default(),
-            ));
+            .await
+            .map_err(SmritiError::RequestError)?;
+
+        let status = response.status();
+        let body_text = response.text().await.map_err(SmritiError::RequestError)?;
+
+        if !status.is_success() {
+            return Err(SmritiError::ServerError(body_text));
         }
-        let result = response.json::<CreateCollectionResponse>().await?;
+
+        let result: CreateCollectionResponse =
+            serde_json::from_str(&body_text).map_err(SmritiError::SerializationError)?;
+
         Ok(result)
     }
+
     pub async fn insert_vector(
         &self,
         collection_name: &str,
@@ -50,17 +58,22 @@ impl SmritiClient {
             .post(url)
             .json(&body)
             .send()
-            .await?;
+            .await
+            .map_err(SmritiError::RequestError)?;
 
-        if !response.status().is_success() {
-            return Err(SmritiError::ServerError(
-                response.text().await.unwrap_or_default(),
-            ));
+        let status = response.status();
+        let body_text = response.text().await.map_err(SmritiError::RequestError)?;
+
+        if !status.is_success() {
+            return Err(SmritiError::ServerError(body_text));
         }
 
-        let result = response.json::<InsertVectorResponse>().await?;
+        let result: InsertVectorResponse =
+            serde_json::from_str(&body_text).map_err(SmritiError::SerializationError)?;
+
         Ok(result)
     }
+
     pub async fn bulk_insert_vector(
         &self,
         collection_name: &str,
@@ -79,17 +92,22 @@ impl SmritiClient {
             .post(url)
             .json(&body)
             .send()
-            .await?;
+            .await
+            .map_err(SmritiError::RequestError)?;
 
-        if !response.status().is_success() {
-            return Err(SmritiError::ServerError(
-                response.text().await.unwrap_or_default(),
-            ));
+        let status = response.status();
+        let body_text = response.text().await.map_err(SmritiError::RequestError)?;
+
+        if !status.is_success() {
+            return Err(SmritiError::ServerError(body_text));
         }
 
-        let result = response.json::<BulkInsertVectorResponse>().await?;
+        let result: BulkInsertVectorResponse =
+            serde_json::from_str(&body_text).map_err(SmritiError::SerializationError)?;
+
         Ok(result)
     }
+
     pub async fn query_vector_record(
         &self,
         collection_name: &str,
@@ -110,16 +128,19 @@ impl SmritiClient {
             .post(url)
             .json(&body)
             .send()
-            .await?;
+            .await
+            .map_err(SmritiError::RequestError)?;
 
-        if !response.status().is_success() {
-            return Err(SmritiError::ServerError(
-                response.text().await.unwrap_or_default(),
-            ));
+        let status = response.status();
+        println!("Status: {}", status);
+        let body_text = response.text().await.map_err(SmritiError::RequestError)?;
+
+        if !status.is_success() {
+            return Err(SmritiError::ServerError(body_text));
         }
 
-        // returning raw JSON to avoid schema mismatch
-        let result = response.json::<Value>().await?;
+        let result: Value =
+            serde_json::from_str(&body_text).map_err(SmritiError::SerializationError)?;
 
         Ok(result)
     }
