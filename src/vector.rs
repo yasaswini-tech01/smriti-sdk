@@ -4,9 +4,6 @@ use serde_json::Value;
 
 impl SmritiClient {
 
-    // -----------------------------
-    // Create Vector Collection
-    // -----------------------------
     pub async fn create_vector_collection(
         &self,
         collection_name: &str,
@@ -25,21 +22,22 @@ impl SmritiClient {
             .post(url)
             .json(&body)
             .send()
-            .await?;
+            .await
+            .map_err(SmritiError::RequestError)?;
 
-        if !response.status().is_success() {
-            return Err(SmritiError::ServerError(
-                response.text().await.unwrap_or_default(),
-            ));
+        let status = response.status();
+        let body_text = response.text().await.map_err(SmritiError::RequestError)?;
+
+        if !status.is_success() {
+            return Err(SmritiError::ServerError(body_text));
         }
 
-        let result = response.json::<CreateCollectionResponse>().await?;
+        let result: CreateCollectionResponse =
+            serde_json::from_str(&body_text).map_err(SmritiError::SerializationError)?;
+
         Ok(result)
     }
 
-    // -----------------------------
-    // Insert Single Vector
-    // -----------------------------
     pub async fn insert_vector(
         &self,
         collection_name: &str,
@@ -60,21 +58,22 @@ impl SmritiClient {
             .post(url)
             .json(&body)
             .send()
-            .await?;
+            .await
+            .map_err(SmritiError::RequestError)?;
 
-        if !response.status().is_success() {
-            return Err(SmritiError::ServerError(
-                response.text().await.unwrap_or_default(),
-            ));
+        let status = response.status();
+        let body_text = response.text().await.map_err(SmritiError::RequestError)?;
+
+        if !status.is_success() {
+            return Err(SmritiError::ServerError(body_text));
         }
 
-        let result = response.json::<InsertVectorResponse>().await?;
+        let result: InsertVectorResponse =
+            serde_json::from_str(&body_text).map_err(SmritiError::SerializationError)?;
+
         Ok(result)
     }
 
-    // -----------------------------
-    // Bulk Insert Vectors
-    // -----------------------------
     pub async fn bulk_insert_vector(
         &self,
         collection_name: &str,
@@ -93,22 +92,22 @@ impl SmritiClient {
             .post(url)
             .json(&body)
             .send()
-            .await?;
+            .await
+            .map_err(SmritiError::RequestError)?;
 
-        if !response.status().is_success() {
-            return Err(SmritiError::ServerError(
-                response.text().await.unwrap_or_default(),
-            ));
+        let status = response.status();
+        let body_text = response.text().await.map_err(SmritiError::RequestError)?;
+
+        if !status.is_success() {
+            return Err(SmritiError::ServerError(body_text));
         }
 
-        let result = response.json::<BulkInsertVectorResponse>().await?;
+        let result: BulkInsertVectorResponse =
+            serde_json::from_str(&body_text).map_err(SmritiError::SerializationError)?;
+
         Ok(result)
     }
 
-
-    // -----------------------------
-    // Query Vector (Similarity Search)
-    // -----------------------------
     pub async fn query_vector_record(
         &self,
         collection_name: &str,
@@ -129,19 +128,20 @@ impl SmritiClient {
             .post(url)
             .json(&body)
             .send()
-            .await?;
+            .await
+            .map_err(SmritiError::RequestError)?;
 
-        if !response.status().is_success() {
-            return Err(SmritiError::ServerError(
-                response.text().await.unwrap_or_default(),
-            ));
+        let status = response.status();
+        println!("Status: {}", status);
+        let body_text = response.text().await.map_err(SmritiError::RequestError)?;
+
+        if !status.is_success() {
+            return Err(SmritiError::ServerError(body_text));
         }
 
-        // returning raw JSON to avoid schema mismatch
-        let result = response.json::<Value>().await?;
+        let result: Value =
+            serde_json::from_str(&body_text).map_err(SmritiError::SerializationError)?;
 
         Ok(result)
     }
-
-
 }
