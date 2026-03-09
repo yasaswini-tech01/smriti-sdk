@@ -4,9 +4,6 @@ use serde_json::Value;
 
 impl SmritiClient {
 
-    // -----------------------------
-    // Create Vector Collection
-    // -----------------------------
     pub async fn create_vector_collection(
         &self,
         collection_name: &str,
@@ -14,7 +11,6 @@ impl SmritiClient {
     ) -> Result<CreateCollectionResponse, SmritiError> {
 
         let url = format!("{}/vector/create-collection", self.base_url);
-
         let body = CreateVectorCollectionRequest {
             collection_name: collection_name.to_string(),
             vector_size,
@@ -26,20 +22,14 @@ impl SmritiClient {
             .json(&body)
             .send()
             .await?;
-
         if !response.status().is_success() {
             return Err(SmritiError::ServerError(
                 response.text().await.unwrap_or_default(),
             ));
         }
-
         let result = response.json::<CreateCollectionResponse>().await?;
         Ok(result)
     }
-
-    // -----------------------------
-    // Insert Single Vector
-    // -----------------------------
     pub async fn insert_vector(
         &self,
         collection_name: &str,
@@ -71,10 +61,6 @@ impl SmritiClient {
         let result = response.json::<InsertVectorResponse>().await?;
         Ok(result)
     }
-
-    // -----------------------------
-    // Bulk Insert Vectors
-    // -----------------------------
     pub async fn bulk_insert_vector(
         &self,
         collection_name: &str,
@@ -104,11 +90,6 @@ impl SmritiClient {
         let result = response.json::<BulkInsertVectorResponse>().await?;
         Ok(result)
     }
-
-
-    // -----------------------------
-    // Query Vector (Similarity Search)
-    // -----------------------------
     pub async fn query_vector_record(
         &self,
         collection_name: &str,
@@ -142,6 +123,4 @@ impl SmritiClient {
 
         Ok(result)
     }
-
-
 }

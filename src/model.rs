@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-
 // Vector Collection
 #[derive(Serialize)]
 pub struct CreateVectorCollectionRequest {
