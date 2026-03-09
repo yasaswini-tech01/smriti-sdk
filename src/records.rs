@@ -1,9 +1,10 @@
 use crate::{SmritiClient, SmritiError};
 use crate::model::*;
 use serde_json::Value;
-
+use crate::model::{
+    CreateCollectionResponse, CreateRecordRequest, GetRecordRequest, HybridQueryVectorRecordRequest, PayloadResponse, QueryRecordsRequest, QueryRecordsResponse, UpdateRecordRequest, VectorFreeSearch,VectorFreeSearchResponse
+};
 impl SmritiClient {
-
     pub async fn create_db_collection(
         &self,
         collection_name: &str,
@@ -35,42 +36,6 @@ impl SmritiClient {
 
         Ok(result)
     }
-
-
-    pub async fn create_record(
-        &self,
-        collection_name: &str,
-        payload: Value,
-    ) -> Result<CreateRecordResponse, SmritiError> {
-
-        let url = format!("{}/db/create-record", self.base_url);
-
-        let body = CreateRecordRequest {
-            collection_name: collection_name.to_string(),
-            payload,
-        };
-
-        let response = self
-            .http_client
-            .post(url)
-            .json(&body)
-            .send()
-            .await
-            .map_err(SmritiError::RequestError)?;
-
-        let status = response.status();
-        let body_text = response.text().await.map_err(SmritiError::RequestError)?;
-
-        if !status.is_success() {
-            return Err(SmritiError::ServerError(body_text));
-        }
-
-        let result: CreateRecordResponse =
-            serde_json::from_str(&body_text).map_err(SmritiError::SerializationError)?;
-
-        Ok(result)
-    }
-
 
     pub async fn get_record(
         &self,
@@ -106,7 +71,6 @@ impl SmritiClient {
         Ok(result)
     }
 
-
     pub async fn llm_response_feedback_record(
         &self,
         payload: Value,
@@ -136,13 +100,8 @@ impl SmritiClient {
         let result: LlmResponseFeedbackResponse =
             serde_json::from_str(&body_text).map_err(SmritiError::SerializationError)?;
 
-use crate::model::{
-    CreateCollectionResponse, CreateRecordRequest, GetRecordRequest, HybridQueryVectorRecordRequest, PayloadResponse, QueryRecordsRequest, QueryRecordsResponse, UpdateRecordRequest, VectorFreeSearch,VectorFreeSearchResponse
-};
-use crate::{SmritiClient, SmritiError};
-use crate::model::*;
-use serde_json::Value;
-impl SmritiClient {
+         Ok(result)
+    }
     pub async fn create_record(
     &self,
     req: CreateRecordRequest,
@@ -159,7 +118,7 @@ impl SmritiClient {
     }
     let result: CreateCollectionResponse = serde_json::from_str(&body)?;
     Ok(result)
-}
+   }
     pub async fn query_records(
         &self,
         req: QueryRecordsRequest,
@@ -256,28 +215,5 @@ impl SmritiClient {
         let result = serde_json::from_str(&body)?;
         Ok(result)
     }
-    pub async fn query_vector_free_search(
-    &self,
-    req:VectorFreeSearch
-    )->Result<VectorFreeSearchResponse,SmritiError>{
-     let url = format!("{}/db/query-vector-free-search", self.base_url);
-        let response = self.http_client
-            .post(url)
-            .json(&req)
-            .send()
-            .await?;
-        let status = response.status();
-        let body = response.text().await?;
-         if !status.is_success() {
-            let error_message: serde_json::Value = serde_json::from_str(&body)?;
-            return Err(SmritiError::ServerError(
-                error_message["message"]
-                    .as_str()
-                    .unwrap_or("Unknown server error")
-                    .to_string(),
-                ));
-        }
-        let result = serde_json::from_str(&body)?;
-        Ok(result)
-    }
+    
 }

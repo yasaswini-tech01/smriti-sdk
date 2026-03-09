@@ -83,15 +83,6 @@ pub struct CreateRecordResponse {
     pub data: Value,
 }
 
-// Get Record
-#[derive(Serialize)]
-
-#[derive(Debug, Serialize)]
-pub struct CreateRecordRequest {
-    #[serde(rename = "collectionName")]
-    pub collection_name: String,
-    pub payload: Value,
-}
 
 
 #[derive(Debug, Serialize, Deserialize)]
