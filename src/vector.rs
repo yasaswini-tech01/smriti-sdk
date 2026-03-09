@@ -3,7 +3,6 @@ use crate::model::*;
 use serde_json::Value;
 
 impl SmritiClient {
-
     pub async fn create_vector_collection(
         &self,
         collection_name: &str,
@@ -106,8 +105,8 @@ impl SmritiClient {
             serde_json::from_str(&body_text).map_err(SmritiError::SerializationError)?;
 
         Ok(result)
-    }
-
+    } 
+    
     pub async fn query_vector_record(
         &self,
         collection_name: &str,
@@ -144,4 +143,30 @@ impl SmritiClient {
 
         Ok(result)
     }
+
+    pub async fn query_vector_free_search(
+    &self,
+    req:VectorFreeSearch
+    )->Result<VectorFreeSearchResponse,SmritiError>{
+     let url = format!("{}/db/query-vector-free-search", self.base_url);
+        let response = self.http_client
+            .post(url)
+            .json(&req)
+            .send()
+            .await?;
+        let status = response.status();
+        let body = response.text().await?;
+         if !status.is_success() {
+            let error_message: serde_json::Value = serde_json::from_str(&body)?;
+            return Err(SmritiError::ServerError(
+                error_message["message"]
+                    .as_str()
+                    .unwrap_or("Unknown server error")
+                    .to_string(),
+                ));
+        }
+        let result = serde_json::from_str(&body)?;
+        Ok(result)
+    }
+
 }
