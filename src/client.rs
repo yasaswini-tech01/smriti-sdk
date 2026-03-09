@@ -10,7 +10,7 @@ impl SmritiClient {
     pub fn new() -> Self {
         dotenv().ok();
         let base_url =
-            env::var("SMRITI_BASE_URL").expect("SMRITI_BASE_URL not set");
+            env::var("SMRITI_END_POINT").expect("SMRITI_END_POINT not set");
         Self {
             base_url: base_url.to_string(),
             http_client: Client::new(),
